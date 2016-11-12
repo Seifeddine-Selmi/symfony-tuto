@@ -1,0 +1,16 @@
+{# src/Sdz/BlogBundle/Resources/views/Blog/delete.html.twig #}
+{% extends "SdzBlogBundle::layout.html.twig" %}
+{% block title %}
+    Supprimer un article - {{ parent() }}
+{% endblock %}
+
+{% block sdzblog_body %}
+    <h2>Supprimer l'article {{ article.id }}</h2>
+
+    <p>
+        <a href="{{ path('sdzblog_home') }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à la liste
+        </a>
+    </p>
+{% endblock %}

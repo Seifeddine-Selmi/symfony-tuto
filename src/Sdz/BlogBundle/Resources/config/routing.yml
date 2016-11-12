@@ -1,0 +1,68 @@
+sdz_blog_homepage:
+    path:     /default
+    defaults: { _controller: SdzBlogBundle:Default:index }
+
+sdzblog_home:
+    path:    /{page}
+    defaults: { _controller: SdzBlogBundle:Blog:index, page: 1 }
+    requirements:
+        page: \d*
+
+sdzblog_view:
+    path:    /article/{id}
+    defaults: { _controller: SdzBlogBundle:Blog:view }
+    requirements:
+        id: \d+
+
+
+sdzblog_view_slug:
+    path:    /{annee}/{slug}.{format}
+    defaults: { _controller: SdzBlogBundle:Blog:viewSlug, format: html}
+    requirements:
+        annee: \d{4}
+        format: html|xml
+
+
+sdzblog_add:
+    path:     /add
+    defaults: { _controller: SdzBlogBundle:Blog:add }
+
+
+sdzblog_update:
+    path: /update/{id}
+    defaults: { _controller: SdzBlogBundle:Blog:update }
+    requirements:
+        id: \d+
+
+
+sdzblog_delete:
+    path: /delete/{id}
+    defaults: { _controller: SdzBlogBundle:Blog:delete }
+    requirements:
+        id: \d+
+
+sdzblog_send_email:
+    path:    /email
+    defaults: { _controller: SdzBlogBundle:Blog:sendEmail }
+
+sdzblog_templating:
+    path:    /templating
+    defaults: { _controller: SdzBlogBundle:Blog:templating }
+
+
+# Symfony Services
+sdzblog_request:
+    path:    /request/{id}
+    defaults: { _controller: SdzBlogBundle:Blog:request }
+
+sdzblog_session:
+    path:    /session
+    defaults: { _controller: SdzBlogBundle:Blog:session }
+
+sdzblog_flash:
+    path:     /flash
+    defaults: { _controller: SdzBlogBundle:Blog:flash }
+
+sdzblog_display_flash:
+    path:     /display_flash/{id}
+    defaults: { _controller: SdzBlogBundle:Blog:displayFlash }

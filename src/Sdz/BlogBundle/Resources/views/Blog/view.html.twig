@@ -1,0 +1,29 @@
+{# src/Sdz/BlogBundle/Resources/view/Blog/view.html.twig #}
+{% extends "SdzBlogBundle::layout.html.twig" %}
+{% block title %}
+    Lecture d'un article - {{ parent() }}
+{% endblock %}
+
+{% block sdzblog_body %}
+<h2>{{ article.titre }}</h2>
+<i>Par {{ article.auteur }}, le {{ article.date|date('d/m/Y')
+    }}</i>
+<div class="well">
+    {{ article.contenu }}
+</div>
+    <p>
+        <a href="{{ path('sdzblog_home') }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à la liste
+        </a>
+
+        <a href="{{ path('sdzblog_update', {'id': article.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-edit"></i>
+            Modifier l'article
+        </a>
+        <a href="{{ path('sdzblog_delete', {'id': article.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-trash"></i>
+            Supprimer l'article
+        </a>
+    </p>
+{% endblock %}

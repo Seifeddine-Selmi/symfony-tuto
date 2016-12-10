@@ -1,4 +1,10 @@
+# src/Sdz/BlogBundle/Resources/config/services.yml
+
 services:
 #    sdz_blog.example:
 #        class: Sdz\BlogBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+    sdz_blog.antispam:
+        class: Sdz\BlogBundle\Antispam\SdzAntispam
+        arguments: ["@mailer", "%locale%", 3]

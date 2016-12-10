@@ -38,6 +38,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     globals:
+        #webmaster: "Seifeddine Selmi" # app/config/parameters.yml
         webmaster: %app_webmaster% # app/config/parameters.yml
 
 # Doctrine Configuration

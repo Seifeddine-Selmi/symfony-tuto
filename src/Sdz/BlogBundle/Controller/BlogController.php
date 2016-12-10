@@ -3,8 +3,13 @@
 namespace Sdz\BlogBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Sdz\BlogBundle\Entity\Article;
+use Sdz\BlogBundle\Entity\Image;
+use Sdz\BlogBundle\Entity\Comment;
+use Sdz\BlogBundle\Entity\ArticleCompetence;
 
 
 
@@ -30,6 +35,14 @@ class BlogController extends Controller
     {
         if( $page < 0 ) {
             throw $this->createNotFoundException('Page inexistante (page = '.$page.')');
+        }
+        $text = "http://localhost:8000/blog";
+        // On récupérere le service
+        $antispam = $this->container->get('sdz_blog.antispam');
+
+        // Je pars du principe que $text contient le texte d'un message quelconque
+        if ($antispam->isSpam($text)) {
+            throw new \Exception('Votre message a Ã©tÃ© dÃ©tectÃ© comme spam !');
         }
 
         $articles = array(
@@ -59,53 +72,218 @@ class BlogController extends Controller
 
     public function viewAction($id)
     {
-        $article = array(
-            'titre' => 'Apprendre Symfony3',
-            'id' => 1,
-            'auteur' => 'Selmi',
-            'contenu' => 'Apprendre Symfony3 Framework PHP',
-            'date' => new \Datetime()
-        );
-        return $this->render('SdzBlogBundle:Blog:view.html.twig', array( 'article' => $article ));
+
+        // On récupère l'EntityManager
+        $em = $this->getDoctrine()
+            ->getManager();
+
+        // On récupère le repository
+       /* $repository = $em
+            ->getRepository('SdzBlogBundle:Article');
+
+          // On récupère l'entité correspondant à l'id $id
+          $article = $repository->find($id);
+      */
+
+        $article = $em->find('SdzBlogBundle:Article', $id);
+
+       // $article est donc une instance de Sdz\BlogBundle\Entity\Article
+       // Ou null si aucun article n'a été trouvé avec l'id $id
+        if($article === null)
+        {
+          //  throw $this->createNotFoundException('Article[id='.$id.'] inexistant.');
+            throw new NotFoundHttpException('Article[id='.$id.'] inexistant.');
+        }
+
+        // On récupère la liste des commentaires
+        $comments_list = $em->getRepository('SdzBlogBundle:Comment')->findAll();
+
+        // On récupère les articleCompetence pour l'article $article
+        $articleCompetence_list = $em->getRepository('SdzBlogBundle:ArticleCompetence')->findByArticle($article->getId());
+
+        return $this->render('SdzBlogBundle:Blog:view.html.twig',
+                            array( 'article' => $article,
+                                   'comments_list' =>  $comments_list,
+                                   'articleCompetence_list' =>  $articleCompetence_list
+                             ));
+    }
+
+    public function add1Action()
+    {
+       // Création de l'entité Article
+        $article = new Article;
+        $article->setTitle('Article Symfony');
+        $article->setAuthor('Selmi');
+        $article->setContent("Article Symfony avec des commentaires");
+
+
+        // Création de l'entité Image
+        $image = new Image();
+        $image->setUrl('https://symfony.com/images/v5/logos/header-logo.svg');
+        $image->setAlt('Logo Symfony');
+
+        // On lie l'image à l'article
+        $article->setImage($image);
+
+
+        // Création d'un premier commentaire
+        $comment1 = new Comment();
+        $comment1->setAuthor('Selmi');
+        $comment1->setContent('On veut les photos !');
+
+        $comment2 = new Comment();
+        $comment2->setAuthor('Seif');
+        $comment2->setContent('Les photos arrivent !');
+
+        // On lie les commentaires à l'article
+        $comment1->setArticle($article);
+        $comment2->setArticle($article);
+
+        // On récupère l'EntityManager
+        $em = $this->getDoctrine()->getManager();
+
+        // Étape 1 : On « persiste » l'entité: Manipulé des objets
+         $em->persist($article);
+
+        // Étape 1 bis : si on n'avait pas défini le cascade={"persist"}, on devrait persister à la main l'entité $image
+         $em->persist($image);
+
+
+         // Pour cette relation pas de cascade, car elle est définie dans l'entité Commentaire et non Article
+         // On doit donc tout persister à la main ici
+        $em->persist($comment1);
+        $em->persist($comment2);
+
+        // Étape 2 : On « flush » tout ce qui a été persisté avant: enregistré l'article en base de données
+        $em->flush();
+
+
+        $request =   $this->container->get('request_stack')->getCurrentRequest();
+
+        if( $request->getMethod() == 'POST' ){
+            // Ici, on s'occupera de la création et de la gestion du formulaire
+            $this->get('session')->getFlashBag()->add('info', 'Article bien enregistrÃ©');
+
+            // Puis on redirige vers la page de visualisation de cet article
+           // return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => $article->getId())) );
+            return $this->redirectToRoute('sdzblog_view', array('id' => $article->getId()));
+        }
+        return $this->render('SdzBlogBundle:Blog:add.html.twig');
     }
 
     public function addAction()
     {
+        // On récupère l'EntityManager
+        $em = $this->getDoctrine()->getManager();
+
+        // Création de l'entité Article
+        $article = new Article;
+        $article->setTitle('Article Symfony avec competence');
+        $article->setAuthor('Selmi');
+        $article->setContent("Article Symfony avec competences");
+
+        // Dans ce cas, on doit créer effectivement l'article en bdd pour lui assigner un id
+        // On doit faire cela pour pouvoir enregistrer les ArticleCompetence par la suite
+        $em->persist($article);
+        $em->flush(); // Maintenant, $article a un id défini
+
+
+        // Les compétences existent déjà, on les récupère depuis la bdd
+        $competences_list = $em->getRepository('SdzBlogBundle:Competence')->findAll(); // Pour l'exemple, notre Article contient toutes les Competences
+
+        // Pour chaque compétence
+        foreach($competences_list as $i => $competence)
+        {
+           // On crée une nouvelle « relation entre 1 article et 1 compétence »
+           $articleCompetence[$i] = new ArticleCompetence;
+
+          // On la lie à l'article, qui est ici toujours le même
+          $articleCompetence[$i]->setArticle($article);
+
+         // On la lie à la compétence, qui change ici dans la boucle foreach
+          $articleCompetence[$i]->setCompetence($competence);
+
+         // Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert'
+          $articleCompetence[$i]->setLevel('Expert');
+
+         // Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+         $em->persist($articleCompetence[$i]);
+       }
+         // On déclenche l'enregistrement
+        $em->flush();
+
         $request =   $this->container->get('request_stack')->getCurrentRequest();
+        if( $request->getMethod() == 'POST' ){
+            // Ici, on s'occupera de la création et de la gestion du formulaire
+            $this->get('session')->getFlashBag()->add('info', 'Article bien enregistrÃ©');
 
-           if( $request->getMethod() == 'POST' ){
-                // Ici, on s'occupera de la création et de la gestion du formulaire
-                $this->get('session')->getFlashBag()->add('notice', 'Article bien enregistré');
-
-                // Puis on redirige vers la page de visualisation de cet article
-                return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => 5)) );
-           }
-        // Si on n'est pas en POST, alors on affiche le formulaire
+            // Puis on redirige vers la page de visualisation de cet article
+            // return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => $article->getId())) );
+            return $this->redirectToRoute('sdzblog_view', array('id' => $article->getId()));
+        }
         return $this->render('SdzBlogBundle:Blog:add.html.twig');
+
     }
 
     public function updateAction($id)
     {
-        $article = array(
-            'titre' => 'Apprendre Symfony3',
-            'id' => 1,
-            'auteur' => 'Selmi',
-            'contenu' => 'Apprendre Symfony3 Framework PHP',
-            'date' => new \Datetime()
-        );
+        // On récupère l'EntityManager
+          $em = $this->getDoctrine()->getManager();
+
+            // On récupère l'entité correspondant à l'id $id
+            $article = $em->getRepository('SdzBlogBundle:Article')->find($id);
+
+            if ($article === null) {
+                throw $this->createNotFoundException('Article[id='.$id.'] inexistant.');
+            }
+
+            // On récupère toutes les catégories :
+            $categories_list = $em->getRepository('SdzBlogBundle:Category')->findAll();
+
+            // On boucle sur les catégories pour les lier à l'article
+            foreach($categories_list as $category)
+            {
+                $article->addCategory($category);
+            }
+
+            // Inutile de persister l'article, on l'a récupéré avec Doctrine
+            // Étape 2 : On déclenche l'enregistrement
+          $em->flush();
 
         return $this->render('SdzBlogBundle:Blog:update.html.twig', array('article' => $article));
     }
 
     public function deleteAction($id)
     {
-        $article = array(
-            'titre' => 'Apprendre Symfony3',
-            'id' => 1,
-            'auteur' => 'Selmi',
-            'contenu' => 'Apprendre Symfony3 Framework PHP',
-            'date' => new \Datetime()
-        );
+        // On récupère l'EntityManager
+        $em = $this->getDoctrine()->getManager();
+
+        // On récupère l'entité correspondant à l'id $id
+        $article = $em->getRepository('SdzBlogBundle:Article')->find($id);
+
+        if ($article === null) {
+            throw $this->createNotFoundException('Article[id='.$id.'] inexistant.');
+        }
+
+        // On récupère toutes les catégories :
+        $categories_list = $em->getRepository('SdzBlogBundle:Category')->findAll();
+
+
+        // On enlève toutes ces catégories de l'article
+        foreach($categories_list as $category)
+        {
+            // On fait appel à la méthode removeCategory() dont on a parlé plus haut
+            // Attention ici, $categorie est bien une instance de Categorie, et pas seulement un id
+            $article->removeCategory($category);
+        }
+
+        // On n'a pas modifié les catégories : inutile de les persister
+        // On a modifié la relation Article - Categorie
+        // Il faudrait persister l'entité propriétaire pour persister la relation
+        // Or l'article a été récupéré depuis Doctrine, inutile de le persister
+        // On déclenche la modification
+       $em->flush();
+
 
         return $this->render('SdzBlogBundle:Blog:delete.html.twig', array('article' => $article));
     }
@@ -113,30 +291,59 @@ class BlogController extends Controller
 
     public function viewSlugAction($slug, $annee, $format)
     {
-        return new Response("On pourrait afficher l'article correspondant au slug '".$slug."', créé en ".$annee." et au format ".$format.".");
+        return new Response("On pourrait afficher l'article correspondant au slug '".$slug."', crÃ©Ã© en ".$annee." et au format ".$format.".");
     }
 
+    public function addTestAction()
+    {
+        $request =   $this->container->get('request_stack')->getCurrentRequest();
+
+        if( $request->getMethod() == 'POST' ){
+            // Ici, on s'occupera de la crÃ©ation et de la gestion du formulaire
+            $this->get('session')->getFlashBag()->add('notice', 'Article bien enregistrÃ©');
+
+            // Puis on redirige vers la page de visualisation de cet article
+            return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => 5)) );
+        }
+        // Si on n'est pas en POST, alors on affiche le formulaire
+        return $this->render('SdzBlogBundle:Blog:add.html.twig');
+    }
+
+    public function updateImageAction($id_article)
+    {
+        $em = $this->getDoctrine()->getManager();
+        // On récupère l'article
+        $article = $em->getRepository('SdzBlogBundle:Article')->find($id_article);
+        // On modifie l'URL de l'image par exemple
+        $article->getImage()->setUrl('test.png');
+        // On n'a pas besoin de persister notre article (si vous le faites, aucune erreur n'est déclenchée, Doctrine l'ignore)
+        // Rappelez-vous, il l'est automatiquement car on l'a récupéré depuis Doctrine
+        // Pas non plus besoin de persister l'image ici, car elle est également récupérée par Doctrine
+        // On déclenche la modification
+        $em->flush();
+        return new Response('OK');
+}
 
 // Symfony Services
     public function sendEmailAction()
     {
         $contenu = $this->render('SdzBlogBundle:Blog:email.txt.twig', array('pseudo' => 'Selmi'));
-        // Pour que l'envoi d'e-mail fonctionne, n'oubliez pas de configurer vos paramètres dans app/config/parameters.yml
+        // Pour que l'envoi d'e-mail fonctionne, n'oubliez pas de configurer vos paramÃ¨tres dans app/config/parameters.yml
 
-        // Récupération du service mailer
+        // RÃ©cupÃ©ration du service mailer
         $mailer = $this->get('mailer');
 
-        // Création de l'e-mail : le service mailer utilise SwiftMailer, donc nous créons une instance de Swift_Message
+        // CrÃ©ation de l'e-mail : le service mailer utilise SwiftMailer, donc nous crÃ©ons une instance de Swift_Message
         $message = \Swift_Message::newInstance()
             ->setSubject('Hello!')
             ->setFrom('abc@gmail.com')
             ->setTo('xyz@gmail.com')
             ->setBody($contenu);
 
-        // Retour au service mailer, nous utilisons sa méthode « send() » pour envoyer notre $message
+        // Retour au service mailer, nous utilisons sa mÃ©thode Â« send() Â» pour envoyer notre $message
         $mailer->send($message);
 
-        return new Response('Email bien envoyé');
+        return new Response('Email bien envoyÃ©');
     }
 
     public function templatingAction()
@@ -154,7 +361,7 @@ class BlogController extends Controller
 
        // http://localhost:8000/blog/request/9?tag=vacances
 
-        // On récupère la requête
+        // On rÃ©cupÃ¨re la requÃªte
         $request =   $this->container->get('request_stack')->getCurrentRequest();
 
         $id = $request->attributes->get('id'); // 9
@@ -182,35 +389,35 @@ class BlogController extends Controller
 
         echo '<br/>';
         echo '<pre>';
-        var_dump($request->attributes->get('id')); // Est équivalent à : $id
+        var_dump($request->attributes->get('id')); // Est Ã©quivalent Ã  : $id
         echo '</pre>';
 
         echo '<br/>';
         echo '<pre>';
-        var_dump($request->getMethod()); // Récupérer la méthode de la requête HTTP
-        echo '</pre>';
-
-
-        echo '<br/>';
-        echo '<pre>';
-        var_dump($request->isXmlHttpRequest()); // C'est une requête AJAX, retournons du JSON, par exemple
+        var_dump($request->getMethod()); // RÃ©cupÃ©rer la mÃ©thode de la requÃªte HTTP
         echo '</pre>';
 
 
         echo '<br/>';
         echo '<pre>';
-        var_dump($request->getSession()->get('user_id')); // C'est une requête AJAX, retournons du JSON, par exemple
+        var_dump($request->isXmlHttpRequest()); // C'est une requÃªte AJAX, retournons du JSON, par exemple
         echo '</pre>';
 
-        // On crée la réponse sans lui donner de contenu pour le moment
+
+        echo '<br/>';
+        echo '<pre>';
+        var_dump($request->getSession()->get('user_id')); // C'est une requÃªte AJAX, retournons du JSON, par exemple
+        echo '</pre>';
+
+        // On crÃ©e la rÃ©ponse sans lui donner de contenu pour le moment
        // $response = new Response;
 
-        // On définit le contenu
+        // On dÃ©finit le contenu
        // $response->setContent('Ceci est une page d\'erreur 404');
 
-        // On définit le code HTTP
+        // On dÃ©finit le code HTTP
        // $response->setStatusCode(404);
-        // On retourne la réponse
+        // On retourne la rÃ©ponse
 
      //   return $response;
 
@@ -220,12 +427,12 @@ class BlogController extends Controller
 
     public function sessionAction()
     {
-       // Récupération du service session
+       // RÃ©cupÃ©ration du service session
         $session = $this->get('session');
-       // On récupère le contenu de la variable user_id
+       // On rÃ©cupÃ¨re le contenu de la variable user_id
         $user_id = $session->get('user_id');
 
-       // On définit une nouvelle valeur pour cette variable user_id
+       // On dÃ©finit une nouvelle valeur pour cette variable user_id
         $session->set('user_id', 90);
 
         return new Response('User ID in Session: '. $user_id);
@@ -234,10 +441,10 @@ class BlogController extends Controller
     public function flashAction()
     {
 
-        $this->get('session')->getFlashBag()->add('info', 'Article bien enregistré');
-        // Le « flashBag » est ce qui contient les messages flash dans la session
-        // Il peut bien sûr contenir plusieurs messages :
-        $this->get('session')->getFlashBag()->add('info', 'Oui oui, il est bien enregistré !');
+        $this->get('session')->getFlashBag()->add('info', 'Article bien enregistrÃ©');
+        // Le Â« flashBag Â» est ce qui contient les messages flash dans la session
+        // Il peut bien sÃ»r contenir plusieurs messages :
+        $this->get('session')->getFlashBag()->add('info', 'Oui oui, il est bien enregistrÃ© !');
 
         // Puis on redirige vers la page de visualisation de cet article
         return $this->redirect( $this->generateUrl('sdzblog_display_flash', array('id' => 5)) );
@@ -248,6 +455,19 @@ class BlogController extends Controller
         return $this->render('SdzBlogBundle:Blog:flash.html.twig', array(
             'id' => $id
         ));
+    }
+
+
+    public function testAction()
+    {
+        $article = new Article;
+        $article->setDate(new \Datetime()); // date d'aujourd'hui
+        $article->setId(1);
+        $article->setTitle('Mon dernier weekend');
+        $article->setAuthor('Selmi');
+        $article->setContent("C'était vraiment super et on s'est bien amusé.");
+       // return $this->render('SdzBlogBundle:Article:test.html.twig', array('article' => $article));
+        return $this->render('SdzBlogBundle:Blog:test.html.twig', array('article' => $article));
     }
 
 }

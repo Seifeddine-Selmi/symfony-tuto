@@ -66,3 +66,8 @@ sdzblog_flash:
 sdzblog_display_flash:
     path:     /display_flash/{id}
     defaults: { _controller: SdzBlogBundle:Blog:displayFlash }
+
+
+sdzblog_test:
+    path:     /test
+    defaults: { _controller: SdzBlogBundle:Blog:test }

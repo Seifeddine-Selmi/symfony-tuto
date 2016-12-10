@@ -1,0 +1,19 @@
+{# src/Sdz/BlogBundle/Resources/views/Blog/test.html.twig #}
+{% extends "SdzBlogBundle::layout.html.twig" %}
+{% block title %}
+    Afficher un article - {{ parent() }}
+{% endblock %}
+
+{% block sdzblog_body %}
+    <h2>Afficher un article</h2>
+
+    <p>
+        Id : {{ article.id}} <br/>
+        Date : {{ article.date | date('d/m/Y')}} <br/>
+        Titre : {{ article.title}} <br/>
+        Auteur : {{ article.author}} <br/>
+        Contenu : {{ article.content}} <br/>
+
+    </p>
+
+{% endblock %}

@@ -18,15 +18,18 @@ class BlogController extends Controller
     public function menuAction($nombre)
     {
 
-        $liste = array(
-            array('id' => 1, 'titre' => 'Apprendre Symfony3'),
-            array('id' => 2, 'titre' => 'Apprendre Laravel5'),
-            array('id' => 3, 'titre' => 'Apprendre CakePHP')
+        $articles = array(
+            array('id' => 1, 'title' => 'Apprendre Symfony3'),
+            array('id' => 2, 'title' => 'Apprendre Laravel5'),
+            array('id' => 3, 'title' => 'Apprendre CakePHP')
         );
+
+        $em = $this->getDoctrine()->getManager();
+        $articles = $em->getRepository('SdzBlogBundle:Article')->findAll();
 
 
        return $this->render('SdzBlogBundle:Blog:menu.html.twig', array(
-           'liste_articles' => $liste
+           'liste_articles' => $articles
        ));
     }
 
@@ -47,24 +50,27 @@ class BlogController extends Controller
 
         $articles = array(
             array(
-                'titre' => 'Apprendre Symfony3',
+                'title' => 'Apprendre Symfony3',
                 'id' => 1,
-                'auteur' => 'Selmi',
-                'contenu' => 'Apprendre Symfony3 Framework PHP',
+                'author' => 'Selmi',
+                'content' => 'Apprendre Symfony3 Framework PHP',
                 'date' => new \Datetime()),
             array(
-                'titre' => 'Apprendre Laravel5',
+                'title' => 'Apprendre Laravel5',
                 'id' => 2,
-                'auteur' => 'Selmi',
-                'contenu' => 'Apprendre Laravel5 Framework PHP',
+                'author' => 'Selmi',
+                'content' => 'Apprendre Laravel5 Framework PHP',
                 'date' => new \Datetime()),
             array(
-                'titre' => 'Apprendre CakePHP',
+                'title' => 'Apprendre CakePHP',
                 'id' => 3,
-                'auteur' => 'Selmi',
-                'contenu' => 'Apprendre CakePHP Framework PHP',
+                'author' => 'Selmi',
+                'content' => 'Apprendre CakePHP Framework PHP',
                 'date' => new \Datetime())
         );
+
+        $em = $this->getDoctrine()->getManager();
+        $articles = $em->getRepository('SdzBlogBundle:Article')->findAll();
 
         return $this->render('SdzBlogBundle:Blog:index.html.twig', array('articles' => $articles));
 
@@ -460,6 +466,7 @@ class BlogController extends Controller
 
     public function testAction()
     {
+        /*
         $article = new Article;
         $article->setDate(new \Datetime()); // date d'aujourd'hui
         $article->setId(1);
@@ -468,6 +475,43 @@ class BlogController extends Controller
         $article->setContent("C'était vraiment super et on s'est bien amusé.");
        // return $this->render('SdzBlogBundle:Article:test.html.twig', array('article' => $article));
         return $this->render('SdzBlogBundle:Blog:test.html.twig', array('article' => $article));
+        */
+/*
+        $listeArticles = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('SdzBlogBundle:Article')
+            ->myFindAll();
+        */
+
+        $listeArticles  = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('SdzBlogBundle:Article')
+            ->myFindOne(17);
+
+        $listeArticles  = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('SdzBlogBundle:Article')
+            ->findByAuthorAndDate('Selmi', new \Datetime());
+
+
+        $listeArticles  = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('SdzBlogBundle:Article')
+            ->myFind();
+
+        foreach($listeArticles as $article)
+        {
+            // $article est une instance de Article
+            // echo $article->getContent();
+            echo $article['content'];
+        }
+
+        $article  = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('SdzBlogBundle:Article')
+            ->myFindOne(17);
+        echo $article->getContent();
+        die;
     }
 
 }

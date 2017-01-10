@@ -10,8 +10,8 @@
     <ul>
         {% for article in articles %}
             <li>
-                <a href="{{ path('sdzblog_view', {'id': article.id}) }}">{{ article.titre }}</a>
-                par {{ article.auteur }},
+                <a href="{{ path('sdzblog_view', {'id': article.id}) }}">{{ article.title }}</a>
+                par {{ article.author }},
                 le {{ article.date|date('d/m/Y') }}
             </li>
         {% else %}

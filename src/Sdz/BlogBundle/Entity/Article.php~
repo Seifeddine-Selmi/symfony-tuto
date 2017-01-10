@@ -78,6 +78,7 @@ class Article
         $this->date = new \Datetime();
         $this->publication = true;
         $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -267,5 +268,42 @@ class Article
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Add comment
+     *
+     * @param \Sdz\BlogBundle\Entity\Comment $comment
+     *
+     * @return Article
+     */
+    public function addComment(\Sdz\BlogBundle\Entity\Comment $comment)
+    {
+        $this->comments[] = $comment;
+        $comment->setArticle($this); // On ajoute ceci on relie le commentaire à l'article
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param \Sdz\BlogBundle\Entity\Comment $comment
+     */
+    public function removeComment(\Sdz\BlogBundle\Entity\Comment $comment)
+    {
+        $this->comments->removeElement($comment);
+        // Et si notre relation était facultative (nullable=true, ce qui n'est pas notre cas ici attention) :
+        // $comment->setArticle(null);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getComments()
+    {
+        return $this->comments;
     }
 }

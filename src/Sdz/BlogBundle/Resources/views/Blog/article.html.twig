@@ -1,0 +1,30 @@
+{# src/Sdz/BlogBundle/Resources/views/Blog/article.html.twig #}
+{# On utilise une variable temporaire, qu'on définit à false si elle n'est pas déjà définie #}
+{% set home = home|default(false) %}
+<h2>
+    {# On vérifie qu'une image est bien associée à l'article #}
+    {% if article.image is not null %}
+        <img src="{{ asset(article.image.url) }}" alt="{{ article.image.alt }}" />
+    {% endif %}
+    {# Si on est sur la page d'accueil, on fait un lien vers l'article, sinon non #}
+    {% if home %}
+    <a href="{{ path('sdzblog_view', {'id': article.id} ) }}">{{ article.title }}</a>
+    {% else %}
+        {{ article.title }}
+    {% endif %}
+</h2>
+<i>Le {{ article.date|date('d/m/Y') }}, par {{ article.author }}.</i>
+<div class="well">
+    {{ article.content }}
+</div>
+{# On affiche les catégories éventuelles #}
+{% if article.categories.count > 0 %}
+    <div class="well well-small">
+        <p><i>
+                Catégories :
+                {% for category in article.categories %}
+                    {{ category.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </i></p>
+    </div>
+{% endif %}

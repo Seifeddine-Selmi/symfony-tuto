@@ -5,60 +5,63 @@
 {% endblock %}
 
 {% block sdzblog_body %}
-<h2>
-    {# On vérifie qu'une image soit bien associée à l'article #}
-    {% if article.image is not null %}
-        <img src="{{ article.image.url }}" alt="{{ article.image.alt }}" />
-    {% endif %}
+<div style="display: none">
+        <h2>
+            {# On vérifie qu'une image soit bien associée à l'article #}
+            {% if article.image is not null %}
+                <img src="{{ article.image.url }}" alt="{{ article.image.alt }}" />
+            {% endif %}
 
-    {{ article.title }}
+            {{ article.title }}
 
-</h2>
-<i>Par {{ article.author }}, le {{ article.date|date('d/m/Y') }}</i>
+        </h2>
+        <i>Par {{ article.author }}, le {{ article.date|date('d/m/Y') }}</i>
 
-    {% if article.categories.count > 0 %}
-        - Catégories :
-        {% for category in article.categories %}
-            {{ category.name }}
-            {% if not loop.last %} - {% endif %}
-        {% endfor %}
-    {% endif %}
+            {% if article.categories.count > 0 %}
+                - Catégories :
+                {% for category in article.categories %}
+                    {{ category.name }}
+                    {% if not loop.last %} - {% endif %}
+                {% endfor %}
+            {% endif %}
 
-<div class="well">
-    {{ article.content }}
+        <div class="well">
+            {{ article.content }}
 
-    <br>
-    </div>
- <div>
-     {% if comments_list is defined %}
-     <h2>Commentaires:</h2>
-    <ul>
-
-        {% for comment in comments_list %}
-            <li>{{ comment.content }}</li>
-            <li>{{ comment.author }}</li>
-            <li>{{ comment.date|date('d/m/Y') }}</li>
-        {% else %}
-            <li>Pas de commentaires.</li>
-        {% endfor %}
-    </ul>
-
-     {% endif %}
-</div>
-
-<div>
-
-    {% if articleCompetence_list|length > 0 %}
-        <div>
-            Compétences utilisées dans cet article :
+            <br>
+            </div>
+         <div>
+             {% if comments_list is defined %}
+             <h2>Commentaires:</h2>
             <ul>
-                {% for articleCompetence in articleCompetence_list %}
-                    <li>{{ articleCompetence.competence.name }} : {{ articleCompetence.level }}</li>
+
+                {% for comment in comments_list %}
+                    <li>{{ comment.content }}</li>
+                    <li>{{ comment.author }}</li>
+                    <li>{{ comment.date|date('d/m/Y') }}</li>
+                {% else %}
+                    <li>Pas de commentaires.</li>
                 {% endfor %}
             </ul>
+
+             {% endif %}
         </div>
-    {% endif %}
-</div>
+
+        <div>
+
+            {% if articleCompetence_list|length > 0 %}
+                <div>
+                    Compétences utilisées dans cet article :
+                    <ul>
+                        {% for articleCompetence in articleCompetence_list %}
+                            <li>{{ articleCompetence.competence.name }} : {{ articleCompetence.level }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% include "SdzBlogBundle:Blog:article.html.twig" %}
     <p>
         <a href="{{ path('sdzblog_home') }}" class="btn btn-default">
             <i class="glyphicon glyphicon-chevron-left"></i>

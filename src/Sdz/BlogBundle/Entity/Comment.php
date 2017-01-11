@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="comment")
  * @ORM\Entity(repositoryClass="Sdz\BlogBundle\Repository\CommentRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Comment
 {
@@ -47,6 +48,7 @@ class Comment
      * @ORM\JoinColumn(nullable=false)
      */
     private $article;
+
 
     public function __construct()
     {
@@ -158,5 +160,24 @@ class Comment
     public function getArticle()
     {
         return $this->article;
+    }
+
+
+
+    /**
+     * @ORM\prePersist
+     */
+    public function increase()
+    {
+        $nbComments = $this->getArticle()->getNbComments();
+        $this->getArticle()->setNbComments($nbComments+1);
+    }
+    /**
+     * @ORM\preRemove
+     */
+    public function decrease()
+    {
+        $nbComments = $this->getArticle()->getNbComments();
+        $this->getArticle()->setNbComments($nbComments-1);
     }
 }

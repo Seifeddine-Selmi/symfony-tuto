@@ -2,6 +2,7 @@
 
 namespace Sdz\BlogBundle\Repository;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * ArticleRepository
@@ -11,6 +12,27 @@ use Doctrine\ORM\Query;
  */
 class ArticleRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getArticles($nbPerPage, $page)
+    {
+        if ($page < 1) {
+            throw new \InvalidArgumentException('L\'argument $page ne peut être inférieur à 1 (valeur : "'.$page.'").');
+        }
+
+        $query = $this->createQueryBuilder('a')
+            ->leftJoin('a.image', 'i')
+              ->addSelect('i')
+            ->leftJoin('a.categories', 'c')
+              ->addSelect('c')
+           // ->orderBy('a.date', 'DESC')
+            ->getQuery();
+
+        // On définit l'article à partir duquel commencer la liste
+        $query->setFirstResult(($page-1) * $nbPerPage)
+              ->setMaxResults($nbPerPage);
+
+        return new Paginator($query);
+      //  return $query->getResult();
+    }
 
     public function myFindAll()
     {
@@ -90,5 +112,55 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
         return $qb->getQuery()->execute(array(), Query::HYDRATE_ARRAY);
        // return $qb->getQuery()->getScalarResult();
 
+    }
+
+ /*** Utilisation du Doctrine Query Language (DQL) ***/
+
+    // Depuis un repository
+    public function myFindAllDQL()
+    {
+        $query = $this->_em->createQuery('SELECT a FROM SdzBlogBundle:Article a');
+        $resultats = $query->getResult();
+        return $resultats;
+    }
+
+
+    public function myFindDQL($id)
+    {
+        $query = $this->_em->createQuery('SELECT a FROM SdzBlogBundle:Article a WHERE a.id = :id');
+        $query->setParameter('id', $id);
+        return $query->getSingleResult();
+    }
+
+
+    // Depuis le repository d'Article
+    public function getArticleAndComments()
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.comments', 'c')
+           // ->leftJoin('a.comments', 'c', 'WITH', 'YEAR(c.date) > 2011')
+            ->addSelect('c');
+        return $qb->getQuery()->getResult();
+    }
+
+
+    public function getArticleAndCategories()
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.categories', 'c')
+            ->addSelect('c');
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getAndCategories(array $nom_categories)
+    {
+        $qb = $this->createQueryBuilder('a');
+
+        // On fait une jointure avec l'entité Categorie, avec pour alias « c »
+        $qb ->join('a.categories', 'c')
+            ->where($qb->expr()->in('c.name', $nom_categories)); // Puis on filtre sur le nom des catégories à l'aide d'un IN
+
+        // Enfin, on retourne le résultat
+        return $qb->getQuery()->getResult();
     }
 }

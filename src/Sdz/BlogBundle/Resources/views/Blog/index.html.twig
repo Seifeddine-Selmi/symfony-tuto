@@ -7,6 +7,7 @@
 
 {% block sdzblog_body %}
     <h2>Liste des articles</h2>
+<div style="display: none">
     <ul>
         {% for article in articles %}
             <li>
@@ -18,6 +19,27 @@
             <li>Pas (encore !) d'articles</li>
         {% endfor %}
     </ul>
+</div>
+    <ul>
+        {% for article in articles %}
+            {# On inclut la vue à chaque itération dans la boucle #}
+            {% include "SdzBlogBundle:Blog:article.html.twig" with {'home': true} %}
+            <hr />
+        {% else %}
+            <p>Pas (encore !) d'articles</p>
+        {% endfor %}
+    </ul>
+
+    <div>
+        <ul class="pagination">
+            {# On utilise la fonction range(a, b) qui crée un tableau de valeurs entre a et b #}
+            {% for p in range(1, nbPage) %}
+                <li{% if p == page %} class="active"{% endif %}>
+                    <a href="{{ path('sdzblog_home', {'page': p}) }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
 
 {% block footer %}

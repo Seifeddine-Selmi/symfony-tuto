@@ -10,8 +10,13 @@ use Sdz\BlogBundle\Entity\Article;
 use Sdz\BlogBundle\Entity\Image;
 use Sdz\BlogBundle\Entity\Comment;
 use Sdz\BlogBundle\Entity\ArticleCompetence;
-
-
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Sdz\BlogBundle\Form\ArticleType;
 
 class BlogController extends Controller
 {
@@ -49,19 +54,55 @@ class BlogController extends Controller
             ));
     }
 
-    public function addAction()
+    public function addAction(Request $request)
     {
-        $request =   $this->container->get('request_stack')->getCurrentRequest();
 
-        if( $request->getMethod() == 'POST' ){
+        $article = new Article();
+        $article->setDate(new \Datetime());
 
-            $this->get('session')->getFlashBag()->add('notice', 'Article bien enregistrÃ©');
+        /*
+      //  $formBuilder = $this->createFormBuilder($article); //S2
 
+        // On crée le FormBuilder grâce au service form factory
+         $formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $article); //S3
 
-            return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => 1)) );
-        }
+        $formBuilder
+            ->add('date', DateType::class)
+            ->add('title', TextType::class)
+            ->add('content', TextareaType::class)
+            ->add('author', TextType::class)
+            ->add('published', CheckboxType::class, array('required' => false))
+            ->add('save',      SubmitType::class);
 
-        return $this->render('SdzBlogBundle:Blog:add.html.twig');
+        $form = $formBuilder->getForm();
+      */
+
+       // $form = $this->createForm(new ArticleType, $article); //S2
+       // $form = $this->get('form.factory')->create(ArticleType::class, $article); // S3
+        $form = $this->createForm(ArticleType::class, $article); // S3
+       if( $request->isMethod('POST') ){
+
+           // $form->bind($request); //S2
+           $form->handleRequest($request); //S3
+
+           if ($form->isValid()) {
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($article);
+                // $em->persist($article->getImage()); // if cascade={"persist"} not exists
+                $em->flush();
+
+               $this->get('session')->getFlashBag()->add('notice', 'Article bien enregistrÃ©');
+              // return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => $article->getId())) ); //S2
+              return $this->redirectToRoute('sdzblog_view', array('id' => $article->getId())); //S3
+
+         }
+       }
+        return $this->render('SdzBlogBundle:Blog:add.html.twig',
+            array(
+                'form' => $form->createView(),
+            ));
+
 
     }
 

@@ -56,12 +56,12 @@ class Article
     /**
      * @var boolean
      * 
-     * @ORM\Column(name="publication", type="boolean")
+     * @ORM\Column(name="published", type="boolean")
      */
-    private $publication;
+    private $published;
 
     /**
-     * @ORM\OneToOne(targetEntity="Sdz\BlogBundle\Entity\Image")
+     * @ORM\OneToOne(targetEntity="Sdz\BlogBundle\Entity\Image", cascade={"persist"})
      * 
      */
     private $image;
@@ -109,7 +109,7 @@ class Article
         $this->date = new \Datetime();
         $this->dateCreated = new \Datetime();
         $this->dateUpdated = new \Datetime();
-        $this->publication = true;
+        $this->published = true;
         $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
     }
@@ -222,27 +222,27 @@ class Article
     }
 
     /**
-     * Set publication
+     * Set published
      *
-     * @param boolean $publication
+     * @param boolean $published
      *
      * @return Article
      */
-    public function setPublication($publication)
+    public function setPublished($published)
     {
-        $this->publication = $publication;
+        $this->published = $published;
 
         return $this;
     }
 
     /**
-     * Get publication
+     * Get published
      *
      * @return boolean
      */
-    public function getPublication()
+    public function getPublished()
     {
-        return $this->publication;
+        return $this->published;
     }
 
     /**

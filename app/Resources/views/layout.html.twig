@@ -41,12 +41,12 @@
             <hr>
             {% block footer %}
                 <footer>
-                    <p>{{ webmaster }} © 2016.</p>
+                    <p>{{ webmaster }} © {{ 'now'|date('Y') }}.</p>
                 </footer>
             {% endblock %}
         </div>
         {% block javascripts %}
-            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+            <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
             <script type="text/javascript" src="{{ asset('js/bootstrap.min.js') }}"></script>
         {% endblock %}
     </body>

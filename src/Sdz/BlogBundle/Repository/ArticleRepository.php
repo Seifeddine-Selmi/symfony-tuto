@@ -34,6 +34,14 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
       //  return $query->getResult();
     }
 
+    public function getSelectList()
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->where('a.published = 1');
+
+       return $qb;
+    }
+
     public function myFindAll()
     {
         $queryBuilder = $this->createQueryBuilder('a');

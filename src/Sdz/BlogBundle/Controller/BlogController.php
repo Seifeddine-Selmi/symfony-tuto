@@ -17,7 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Sdz\BlogBundle\Form\ArticleType;
-
+use Sdz\BlogBundle\Form\ArticleEditType;
 class BlogController extends Controller
 {
 
@@ -79,20 +79,23 @@ class BlogController extends Controller
 
        // $form = $this->createForm(new ArticleType, $article); //S2
        // $form = $this->get('form.factory')->create(ArticleType::class, $article); // S3
-        $form = $this->createForm(ArticleType::class, $article); // S3
+       $form = $this->createForm(ArticleType::class, $article); // S3
+
        if( $request->isMethod('POST') ){
 
            // $form->bind($request); //S2
            $form->handleRequest($request); //S3
 
            if ($form->isValid()) {
+               // c'est elle qui déplace l'image là où on veut les stocker
+               // $article->getImage()->upload();
 
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($article);
                 // $em->persist($article->getImage()); // if cascade={"persist"} not exists
                 $em->flush();
 
-               $this->get('session')->getFlashBag()->add('notice', 'Article bien enregistrÃ©');
+               $request->getSession()->getFlashBag()->add('notice', 'Article bien enregistrÃ©');
               // return $this->redirect( $this->generateUrl('sdzblog_view', array('id' => $article->getId())) ); //S2
               return $this->redirectToRoute('sdzblog_view', array('id' => $article->getId())); //S3
 
@@ -106,7 +109,7 @@ class BlogController extends Controller
 
     }
 
-    public function updateAction($id)
+    public function updateAction(Request $request, $id)
     {
         $em = $this->getDoctrine()
                    ->getManager();
@@ -115,13 +118,39 @@ class BlogController extends Controller
                       ->find($id);
 
         if ($article === null) {
-            throw $this->createNotFoundException('Article[id='.$id.'] inexistant.');
+           // throw $this->createNotFoundException('Article[id='.$id.'] inexistant.'); //S2
+            throw new NotFoundHttpException("L'article d'id ".$id." n'existe pas."); //S3
+
         }
 
-        return $this->render('SdzBlogBundle:Blog:update.html.twig', array('article' => $article));
+        $form = $this->createForm(ArticleEditType::class, $article); // S3
+        if( $request->isMethod('POST') ){
+
+            // $form->bind($request); //S2
+            $form->handleRequest($request); //S3
+
+            if ($form->isValid()) {
+
+                $em = $this->getDoctrine()->getManager();
+               // $em->persist($article); // Inutile de persister ici, Doctrine connait déjà notre article
+                // $em->persist($article->getImage()); // if cascade={"persist"} not exists
+                $em->flush();
+
+                $request->getSession()->getFlashBag()->add('notice', 'Article bien modifiéÃ©');
+                return $this->redirectToRoute('sdzblog_view', array('id' => $article->getId())); //S3
+
+            }
+        }
+
+        return $this->render('SdzBlogBundle:Blog:update.html.twig',
+            array(
+                'article' => $article,
+                'form' => $form->createView()
+            )
+        );
     }
 
-    public function deleteAction($id)
+    public function deleteAction(Request $request, $id)
     {
 
         $em = $this->getDoctrine()
@@ -131,21 +160,45 @@ class BlogController extends Controller
                       ->find($id);
 
         if ($article === null) {
-            throw $this->createNotFoundException('Article[id='.$id.'] inexistant.');
+           // throw $this->createNotFoundException('Article[id='.$id.'] inexistant.'); //S2
+            throw new NotFoundHttpException("L'article d'id ".$id." n'existe pas."); //S3
         }
 
-        $request =   $this->container->get('request_stack')->getCurrentRequest();
 
-        if( $request->getMethod() == 'POST' ){
+        // On crée un formulaire vide, qui ne contiendra que le champ CSRF
+        // Cela permet de protéger la suppression d'annonce contre cette faille
+        $form = $this->get('form.factory')->create();
+      //  $form = $this->createFormBuilder()->getForm(); //S2
 
-            $this->get('session')->getFlashBag()->add('notice', 'Article bien supprimÃ©');
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+
+            $comments_list = $em->getRepository('SdzBlogBundle:Comment')->findByArticle($article->getId());
+            foreach($comments_list as $comment) {
+                $em->remove($comment);
+            }
+
+            $articleCompetence_list = $em->getRepository('SdzBlogBundle:ArticleCompetence')->findByArticle($article->getId());
+            foreach($articleCompetence_list as $competence) {
+                $em->remove($competence);
+            }
+
+            $em->remove($article);
+            $em->flush();
+
+
+            $request->getSession()->getFlashBag()->add('notice', 'Article bien supprimÃ©');
 
 
             return $this->redirect( $this->generateUrl('sdzblog_home') );
         }
 
 
-        return $this->render('SdzBlogBundle:Blog:delete.html.twig', array('article' => $article));
+        return $this->render('SdzBlogBundle:Blog:delete.html.twig',
+            array(
+                'article' => $article,
+                'form' => $form->createView()
+            )
+        );
     }
 
     public function menuAction($nombre)

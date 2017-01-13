@@ -9,7 +9,7 @@
         <h2>
             {# On vérifie qu'une image soit bien associée à l'article #}
             {% if article.image is not null %}
-                <img src="{{ article.image.url }}" alt="{{ article.image.alt }}" />
+                <img src="{{ asset(article.image.webPath) }}" alt="{{ article.image.alt }}" height="50" width="50" />
             {% endif %}
 
             {{ article.title }}
@@ -18,7 +18,7 @@
         <i>Par {{ article.author }}, le {{ article.date|date('d/m/Y') }}</i>
 
             {% if article.categories.count > 0 %}
-                - Catégories :
+                - Cat&eacute;gories :
                 {% for category in article.categories %}
                     {{ category.name }}
                     {% if not loop.last %} - {% endif %}

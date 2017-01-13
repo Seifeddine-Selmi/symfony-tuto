@@ -9,7 +9,9 @@
         {{ form_errors(form) }}
 
         {# Génération du label + error + widget pour un champ. #}
-        {{ form_row(form.date) }}
+         {% if form.date is defined %}
+           {{ form_row(form.date) }}
+         {% endif %}
 
         {# Génération manuelle et éclatée : #}
         <div class="form-group">
@@ -42,15 +44,21 @@
             </div>
         </div>
         {# form_row(form.author) #}
-        {{ form_row(form.published) }}
+
+        {% if form.published is defined %}
+            {{ form_row(form.published) }}
+        {% endif %}
+
        <div class="col-sm-12">
         {{ form_row(form.image) }}
       </div>
 
      <div class="col-sm-12">
         {{ form_row(form.categories) }}
+         <!--
         <a href="#" id="add_category" class="btn btn-success">Ajouter une cat&eacute;gorie</a>
          <br> <br>
+         -->
      </div>
 
 
@@ -106,22 +114,26 @@
             // Dans le contenu de l'attribut « data-prototype », on remplace :
             // - le texte "__name__label__" qu'il contient par le label du champ
             // - le texte "__name__" qu'il contient par le numéro du champ
-            var template = $container.attr('data-prototype')
-                            .replace(/__name__label__/g, 'Cat&eacute;gorie n&deg;' + (index+1))
-                            .replace(/__name__/g,        index)
-                    ;
 
-            // On crée un objet jquery qui contient ce template
-            var $prototype = $(template);
+            if( $container.attr('data-prototype')) {
 
-            // On ajoute au prototype un lien pour pouvoir supprimer la catégorie
-            addDeleteLink($prototype);
+                var template = $container.attr('data-prototype')
+                                .replace(/__name__label__/g, 'Cat&eacute;gorie n&deg;' + (index+1))
+                                .replace(/__name__/g,        index)
+                        ;
 
-            // On ajoute le prototype modifié à la fin de la balise <div>
-            $container.append($prototype);
+                // On crée un objet jquery qui contient ce template
+                var $prototype = $(template);
 
-            // Enfin, on incrémente le compteur pour que le prochain ajout se fasse avec un autre numéro
-            index++;
+                // On ajoute au prototype un lien pour pouvoir supprimer la catégorie
+                addDeleteLink($prototype);
+
+                // On ajoute le prototype modifié à la fin de la balise <div>
+                $container.append($prototype);
+
+                // Enfin, on incrémente le compteur pour que le prochain ajout se fasse avec un autre numéro
+                index++;
+            }
         }
 
         // La fonction qui ajoute un lien de suppression d'une catégorie

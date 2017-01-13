@@ -7,12 +7,7 @@
 {% block sdzblog_body %}
     <h2>Modifier un article</h2>
     {% include "SdzBlogBundle:Blog:form.html.twig" %}
-    <p>
-        Vous éditez un article déjà existant,
-        ne le changez pas trop pour éviter
-        aux membres de ne pas comprendre
-        ce qu'il se passe.
-    </p>
+
     <p>
         <a href="{{ path('sdzblog_view', {'id': article.id}) }}" class="btn btn-default">
             <i class="glyphicon glyphicon-chevron-left"></i>

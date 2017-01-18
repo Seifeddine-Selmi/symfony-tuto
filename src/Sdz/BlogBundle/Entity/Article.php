@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Sdz\BlogBundle\Validator\Antiflood;
 
 /**
  * Article
@@ -58,6 +60,7 @@ class Article
      *
      * @ORM\Column(name="content", type="text")
      * @Assert\NotBlank()
+     * @Antiflood()
      */
     private $content;
 
@@ -453,19 +456,27 @@ class Article
     }
 
     /**
-     * @Assert\IsTrue()
-     *
-    public function isArticleValid()
+     * @Assert\Callback
+     */
+    public function isContentValid(ExecutionContextInterface $context)
     {
-        return false;
+        $forbiddenWords = array('échec', 'abandon');
+
+        // On vérifie que le contenu ne contient pas l'un des mots
+        if (preg_match('#'.implode('|', $forbiddenWords).'#', $this->getContent())) {
+            // La règle est violée, on définit l'erreur
+            $context
+                ->buildViolation('Contenu invalide car il contient un mot interdit.') // message
+                ->atPath('content')                                                   // attribut de l'objet qui est violé
+                ->addViolation() // ceci déclenche l'erreur, ne l'oubliez pas
+            ;
+
+            // La règle est violée, on définit l'erreur et son message
+            // 1er argument : on dit quel attribut l'erreur concerne, ici «contenu »
+            // 2e argument : le message d'erreur
+           // $context->addViolationAt('content', 'Contenu invalide car il contient un mot interdit.', array(), null); // S2
+        }
     }
 
-    **
-     * @Assert\IsTrue()
-     *
-    public function isTitle()
-    {
-        return false;
-    }
-    */
+
 }

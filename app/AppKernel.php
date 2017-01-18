@@ -18,6 +18,7 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new Sdz\BlogBundle\SdzBlogBundle(), // Le générateur a rajouté cette ligne
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            new Sdz\UserBundle\SdzUserBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

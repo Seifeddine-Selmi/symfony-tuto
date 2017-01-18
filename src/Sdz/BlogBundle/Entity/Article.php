@@ -2,9 +2,11 @@
 
 namespace Sdz\BlogBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Article
@@ -29,6 +31,7 @@ class Article
      * @var \DateTime
      *
      * @ORM\Column(name="date", type="datetime")
+     * @Assert\DateTime()
      */
     private $date;
 
@@ -36,6 +39,8 @@ class Article
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255, unique=true)
+     * @Assert\Length(min=10, minMessage="Le titre doit faire au moins {{ limit }} caractères.")
+     * @Assert\NotBlank()
      */
     private $title;
 
@@ -43,6 +48,8 @@ class Article
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=255)
+     * @Assert\Length(min=2)
+     * @Assert\NotBlank()
      */
     private $author;
 
@@ -50,6 +57,7 @@ class Article
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     * @Assert\NotBlank()
      */
     private $content;
 
@@ -62,7 +70,7 @@ class Article
 
     /**
      * @ORM\OneToOne(targetEntity="Sdz\BlogBundle\Entity\Image", cascade={"persist"})
-     * 
+     * @Assert\Valid()
      */
     private $image;
 
@@ -110,8 +118,8 @@ class Article
         $this->dateCreated = new \Datetime();
         $this->dateUpdated = new \Datetime();
         $this->published = true;
-        $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->categories = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
 
@@ -443,4 +451,21 @@ class Article
     {
         return $this->slug;
     }
+
+    /**
+     * @Assert\IsTrue()
+     *
+    public function isArticleValid()
+    {
+        return false;
+    }
+
+    **
+     * @Assert\IsTrue()
+     *
+    public function isTitle()
+    {
+        return false;
+    }
+    */
 }

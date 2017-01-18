@@ -162,29 +162,7 @@ class Comment
         return $this->article;
     }
 
-    /**
-     * Set nbComments
-     *
-     * @param integer $nbComments
-     *
-     * @return Comment
-     */
-    public function setNbComments($nbComments)
-    {
-        $this->nbComments = $nbComments;
 
-        return $this;
-    }
-
-    /**
-     * Get nbComments
-     *
-     * @return integer
-     */
-    public function getNbComments()
-    {
-        return $this->nbComments;
-    }
 
     /**
      * @ORM\prePersist

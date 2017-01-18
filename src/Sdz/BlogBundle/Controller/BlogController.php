@@ -674,7 +674,7 @@ class BlogController extends Controller
     }
 
 
-    public function testAction()
+    public function test1Action()
     {
         /*
         $article = new Article;
@@ -769,6 +769,30 @@ class BlogController extends Controller
         $em->flush(); // C'est à ce moment qu'est généré le slug
         return new Response('Slug généré : '.$article->getSlug()); //Affiche « Slug généré : l-histoire-d-un-bon-weekend »
 
+    }
+
+    public function testAction()
+    {
+        $article = new Article;
+
+        $article->setDate(new \Datetime());  // Champ « date » OK
+        $article->setTitle('abc');           // Champ « title » incorrect : moins de 10 caractères
+        //$article->setContent('blabla');    // Champ « content » incorrect : on ne le définit pas
+        $article->setAuthor('A');            // Champ « author » incorrect : moins de 2 caractères
+
+        // On récupère le service validator
+        $validator = $this->get('validator');
+
+        // On déclenche la validation sur notre object
+        $listErrors = $validator->validate($article);
+
+        // Si $listErrors n'est pas vide, on affiche les erreurs
+        if(count($listErrors) > 0) {
+            // $listErrors est un objet, sa méthode __toString permet de lister joliement les erreurs
+            return new Response((string) $listErrors);
+        } else {
+            return new Response("L'article est valide !");
+        }
     }
 
 }

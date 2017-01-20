@@ -4,28 +4,40 @@ security:
 
     encoders:
         Symfony\Component\Security\Core\User\User: plaintext
+        Sdz\UserBundle\Entity\User: plaintext
 
     role_hierarchy:
-         ROLE_ADMIN:       ROLE_USER
-         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+         # Un admin herite des droits d'auteur et de moderateur
+         ROLE_ADMIN:       [ROLE_AUTEUR, ROLE_MODERATEUR]
+         ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory:
-            memory:
-                    users:
-                      user:  { password: userpass, roles: [ 'ROLE_USER' ] }
-                      admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
+        #in_memory:
+        #    memory:
+        #            users:
+        #              user:  { password: userpass, roles: [ 'ROLE_USER' ] }
+        #              admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
+        main:
+            entity:
+                class:    Sdz\UserBundle\Entity\User
+                property: username
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        # un pare-feu uniquement pour le formulaire
+        main_login:
+            # Cette expression  permet de prendre /login (mais pas /login_check !)
+            pattern:   ^/login$
+            anonymous: true # On autorise alors les anonymes sur ce pare-feu
         main:
               pattern:   ^/
-              anonymous: true
-              provider:     in_memory
+              anonymous: false
+              #provider:     in_memory
+              provider:     main
               form_login:
                 login_path: login
                 check_path: login_check
@@ -35,5 +47,7 @@ security:
 
     access_control:
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        - { path: ^/admin, roles: ROLE_ADMIN, ip: 127.0.0.1, requires_channel: https }
+        - { path: ^/blog/add, roles: ROLE_AUTEUR }
 
         

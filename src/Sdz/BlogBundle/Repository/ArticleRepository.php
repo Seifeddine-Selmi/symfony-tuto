@@ -14,9 +14,9 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
 {
     public function getArticles($nbPerPage, $page)
     {
-        if ($page < 1) {
+      /*  if ($page < 1) {
             throw new \InvalidArgumentException('L\'argument $page ne peut être inférieur à 1 (valeur : "'.$page.'").');
-        }
+        }*/
 
         $query = $this->createQueryBuilder('a')
             ->leftJoin('a.image', 'i')
@@ -26,13 +26,20 @@ class ArticleRepository extends \Doctrine\ORM\EntityRepository
            // ->orderBy('a.date', 'DESC')
             ->getQuery();
 
-        // On définit l'article à partir duquel commencer la liste
-        $query->setFirstResult(($page-1) * $nbPerPage)
-              ->setMaxResults($nbPerPage);
+        if ($page < 1) {
+            $query->setMaxResults($nbPerPage);
+        }else{
+            // On définit l'article à partir duquel commencer la liste
+            $query->setFirstResult(($page-1) * $nbPerPage)
+                  ->setMaxResults($nbPerPage);
+        }
+
 
         return new Paginator($query);
       //  return $query->getResult();
     }
+
+
 
     public function getSelectList()
     {

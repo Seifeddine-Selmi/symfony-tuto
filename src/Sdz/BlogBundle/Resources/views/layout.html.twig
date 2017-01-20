@@ -8,6 +8,11 @@
 {% block body %}
     <h1>Blog</h1>
 
+    {% if app.user %}
+        <p>Bonjour <strong> {{ app.user.username }}</strong></p>
+    {% endif %}
+
+
     <hr>
 
     {% block sdzblog_body %}

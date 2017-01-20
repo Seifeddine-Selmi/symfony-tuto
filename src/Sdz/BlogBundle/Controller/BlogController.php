@@ -18,23 +18,47 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Sdz\BlogBundle\Form\ArticleType;
 use Sdz\BlogBundle\Form\ArticleEditType;
+
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+
 class BlogController extends Controller
 {
 
     public function indexAction($page)
     {
 
+        if( $page < 0 ) {
+            throw $this->createNotFoundException('Page inexistante (page = '.$page.')');
+        }
+
         $articles = $this->getDoctrine()
                          ->getManager()
                          ->getRepository('SdzBlogBundle:Article')
                          ->getArticles(3, $page);
+
+        // On récupère le service
+        $security = $this->get('security.token_storage');
+
+        // On récupère le token
+                $token = $security->getToken();
+
+        if($token) {
+            // Si la requête courante n'est pas derrière un pare-feu, $token est null
+
+            // Sinon, on récupère l'utilisateur
+            $user = $token->getUser(); // or
+           // $user = $this->getUser();
+           // $username =  $user->getUsername();
+
+        }
 
 
         return $this->render('SdzBlogBundle:Blog:index.html.twig',
             array(
                 'articles' => $articles,
                 'page' => $page,
-                'nbPage' => ceil(count($articles)/3)
+                'nbPage' => ceil(count($articles)/3),
             ));
 
     }
@@ -54,8 +78,18 @@ class BlogController extends Controller
             ));
     }
 
+    /**
+     * @Security("has_role('ROLE_AUTEUR')")
+     */
     public function addAction(Request $request)
     {
+
+        // On vérifie que l'utilisateur dispose bien du rôle ROLE_AUTEUR
+      /*  if (!$this->get('security.authorization_checker')->isGranted('ROLE_AUTEUR')) {
+            // Sinon on déclenche une exception « Accès interdit »
+            throw new AccessDeniedException('Accès limité aux auteurs.');
+        }
+      */
 
         $article = new Article();
         $article->setDate(new \Datetime());

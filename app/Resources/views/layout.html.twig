@@ -27,9 +27,11 @@
                         <li>
                             <a href="{{ path('sdzblog_home') }}">Accueil du blog</a>
                         </li>
-                        <li>
-                            <a href="{{ path('sdzblog_add') }}">Ajouter un article</a>
-                        </li>
+
+                        {% if is_granted('ROLE_AUTEUR') %}
+                            <li><a href="{{ path('sdzblog_add') }}">Ajouter un article</a></li>
+                        {% endif %}
+
                     </ul>
                     {{ render(controller("SdzBlogBundle:Blog:menu", {'nombre': 3})) }}
                 </div>

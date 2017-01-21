@@ -58,7 +58,7 @@ class BlogController extends Controller
             array(
                 'articles' => $articles,
                 'page' => $page,
-                'nbPage' => ceil(count($articles)/3),
+                'nbPage' => ceil(count($articles)/3)
             ));
 
     }

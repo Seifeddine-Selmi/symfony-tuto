@@ -38,8 +38,8 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     globals:
-        #webmaster: "Seifeddine Selmi" # app/config/parameters.yml
-        webmaster: %app_webmaster% # app/config/parameters.yml
+        webmaster: "Seifeddine Selmi" # app/config/parameters.yml
+        #webmaster: %app_webmaster% # app/config/parameters.yml
     form_themes:
             - 'bootstrap_3_layout.html.twig'
 # Doctrine Configuration
@@ -78,3 +78,9 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+# FOSUserBundle Configuration
+fos_user:
+    db_driver:     orm                       # Le type de BDD a utiliser, nous utilisons l ORM Doctrine depuis le debut
+    firewall_name: main                      # Le nom du firewall derriere lequel on utilisera ces utilisateurs
+    user_class:    Sdz\UserBundle\Entity\User # La classe de l entite User que nous utilisons

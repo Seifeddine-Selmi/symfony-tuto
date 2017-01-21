@@ -25,7 +25,8 @@
         "twig/extensions": "dev-master",
         "jms/di-extra-bundle": "1.8.*",
         "doctrine/doctrine-fixtures-bundle": "2.3.0",
-        "doctrine/data-fixtures": "@dev"
+        "doctrine/data-fixtures": "@dev",
+        "friendsofsymfony/user-bundle": "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

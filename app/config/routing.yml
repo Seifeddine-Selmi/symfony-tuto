@@ -2,6 +2,14 @@ sdz_blog:
     resource: "@SdzBlogBundle/Resources/config/routing.yml"
     prefix:   /blog
 
+sdz_users:
+    resource: "@SdzUserBundle/Resources/config/routing.yml"
+    prefix:   /users
+
+sdz_users_list:
+    path:   /users_list
+    defaults:
+            _controller: SdzUserBundle:User:index
 #app:
 #    resource: "@AppBundle/Controller/"
 #    type:     annotation

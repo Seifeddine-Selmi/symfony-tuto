@@ -1,0 +1,17 @@
+
+{% extends "SdzUserBundle::layout.html.twig" %}
+{% block title %}
+    Modifier un utilisateur - {{ parent() }}
+{% endblock %}
+
+{% block fos_user_content %}
+    <h2>Modifier un utilisateur</h2>
+    {% include "SdzUserBundle:User:form.html.twig" %}
+
+    <p>
+        <a href="{{ path('sdz_user_view', {'id': user.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à la liste
+        </a>
+    </p>
+{% endblock fos_user_content %}

@@ -1,3 +1,30 @@
-sdz_user_homepage:
-    path:     /
-    defaults: { _controller: SdzUserBundle:Default:index }
+sdz_user_home:
+    path:    /
+    defaults: { _controller: SdzUserBundle:User:index}
+
+
+sdz_user_view:
+    path:    /user/{id}
+    defaults: { _controller: SdzUserBundle:User:view }
+    requirements:
+        id: \d+
+
+
+sdz_user_add:
+    path:     /add
+    defaults: { _controller: SdzUserBundle:User:add }
+
+
+sdz_user_edit:
+    path: /edit/{id}
+    defaults: { _controller: SdzUserBundle:User:edit }
+    requirements:
+        id: \d+
+
+
+sdz_user_delete:
+    path: /delete/{id}
+    defaults: { _controller: SdzUserBundle:User:delete }
+    requirements:
+        id: \d+
+

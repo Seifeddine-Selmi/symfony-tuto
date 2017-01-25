@@ -1,0 +1,29 @@
+
+{% extends "SdzUserBundle::layout.html.twig" %}
+{% block title %}
+    Supprimer  l'utilisateur - {{ parent() }}
+{% endblock %}
+
+{% block fos_user_content %}
+    <h2>Supprimer l'utilisateur {{ user.id }}</h2>
+    <p>
+        Etes-vous certain de vouloir supprimer l'utilisateur "{{ user.username }}" ?
+    </p>
+
+
+    {# On met l'id de l'utilisateur dans la route de l'action du formulaire #}
+    <form action="{{ path('sdz_user_delete', {'id': user.id}) }}" method="post">
+
+        <a href="{{ path('sdz_user_home') }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à la liste
+        </a>
+
+        <a href="{{ path('sdz_user_view', {'id': user.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à l'utilisateur
+        </a>
+        <input type="submit" value="Supprimer" class="btn btn-danger" />
+        {{ form_rest(form) }}
+    </form>
+{% endblock fos_user_content %}

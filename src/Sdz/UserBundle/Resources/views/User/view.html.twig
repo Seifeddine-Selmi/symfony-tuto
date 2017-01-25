@@ -1,0 +1,26 @@
+{# src/Sdz/BlogBundle/Resources/view/Blog/view.html.twig #}
+{% extends "SdzUserBundle::layout.html.twig" %}
+{% block title %}
+    User - {{ parent() }}
+{% endblock %}
+
+{% block fos_user_content %}
+    {% include "SdzUserBundle:User:user.html.twig" %}
+
+    <p>
+        <a href="{{ path('sdz_user_home') }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+            Retour à la liste
+        </a>
+
+        <a href="{{ path('sdz_user_edit', {'id': user.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-edit"></i>
+            Modifier l'utilisateur
+        </a>
+        <a href="{{ path('sdz_user_delete', {'id': user.id}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-trash"></i>
+            Supprimer l'utilisateur
+        </a>
+    </p>
+
+{% endblock fos_user_content%}

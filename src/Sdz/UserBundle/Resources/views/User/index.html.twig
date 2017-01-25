@@ -1,0 +1,37 @@
+{# src/Sdz/UserBundle/Resources/views/User/index.html.twig #}
+{% extends "SdzUserBundle::layout.html.twig" %}
+
+{% block title %}
+    Accueil - {{ parent() }}
+{% endblock %}
+
+{% block fos_user_content %}
+
+    <h2>
+    <a href="{{ path('sdz_user_add') }}">Ajouter un utilisateur</a>
+    </h2>
+    <br>
+
+    <h2>Liste des users</h2>
+    <div style="display: block">
+        <ul>
+            {% for user in users %}
+                <li>
+                    <a href="{{ path('sdz_user_view', {'id': user.id}) }}">{{ user.username }}</a>
+                     {{ user.id }} -
+                    {{ user.username }}
+                </li>
+            {% else %}
+                <li>Pas d'users</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+{% endblock fos_user_content %}
+
+{% block footer %}
+    {{ parent() }}
+{% endblock %}
+

@@ -7,10 +7,27 @@ services:
 
     sdz_blog.antispam:
         class: Sdz\BlogBundle\Antispam\SdzAntispam
-        arguments: ["@mailer", "%locale%", 3]
+       # arguments: ["@mailer", "%locale%", 3]
+        arguments:
+              - "@mailer"
+              - 3
+        calls:
+          - [ setLocale, [%locale%] ]
+
+    sdz_blog.twig.antispam_extension:
+        class: Sdz\BlogBundle\Twig\AntispamExtension
+        arguments:
+          - "@sdz_blog.antispam"
+        tags:
+             -  { name: twig.extension }
 
     sdz_blog.validator.antiflood:
             class: Sdz\BlogBundle\Validator\AntifloodValidator
             arguments: ["@request_stack", "@doctrine.orm.entity_manager"]
             tags:
               - { name: validator.constraint_validator, alias: sdz_blog_antiflood }
+
+    sdz_blog.form.ckeditor:
+        class: Sdz\BlogBundle\Form\CkeditorType
+        tags:
+          - { name: form.type, alias: ckeditor }

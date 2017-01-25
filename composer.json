@@ -26,7 +26,9 @@
         "jms/di-extra-bundle": "1.8.*",
         "doctrine/doctrine-fixtures-bundle": "2.3.0",
         "doctrine/data-fixtures": "@dev",
-        "friendsofsymfony/user-bundle": "dev-master#c0ba63245f4155b3bc7060298089c2bf806cc002"
+        "friendsofsymfony/user-bundle": "dev-master#c0ba63245f4155b3bc7060298089c2bf806cc002",
+        "stof/doctrine-extensions-bundle": "dev-master"
+
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

@@ -1,7 +1,3 @@
-sdz_blog_homepage:
-    path:     /default
-    defaults: { _controller: SdzBlogBundle:Default:index }
-
 sdzblog_home:
     path:    /{page}
     defaults: { _controller: SdzBlogBundle:Blog:index, page: 1 }

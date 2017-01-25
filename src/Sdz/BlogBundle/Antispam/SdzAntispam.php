@@ -8,12 +8,16 @@ class SdzAntispam
     protected $locale;
     protected $nbForSpam;
 
-
-    public function __construct(\Swift_Mailer $mailer, $locale, $nbForSpam)
+    // Dans le constructeur, on retire $locale des arguments
+    public function __construct(\Swift_Mailer $mailer, $nbForSpam)
     {
         $this->mailer = $mailer;
-        $this->locale = $locale;
         $this->nbForSpam = (int) $nbForSpam;
+    }
+
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
     }
 
 

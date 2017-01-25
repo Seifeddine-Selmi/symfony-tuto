@@ -12,15 +12,18 @@
             <i class="glyphicon glyphicon-chevron-left"></i>
             Retour à la liste
         </a>
+        {% if is_granted('ROLE_SUPER_ADMIN') %}
+               <a href="{{ path('sdz_user_edit', {'id': user.id}) }}" class="btn btn-default">
+                   <i class="glyphicon glyphicon-edit"></i>
+                   Modifier l'utilisateur
+               </a>
+               <a href="{{ path('sdz_user_delete', {'id': user.id}) }}" class="btn btn-default">
+                   <i class="glyphicon glyphicon-trash"></i>
+                   Supprimer l'utilisateur
+               </a>
+       {% endif %}
 
-        <a href="{{ path('sdz_user_edit', {'id': user.id}) }}" class="btn btn-default">
-            <i class="glyphicon glyphicon-edit"></i>
-            Modifier l'utilisateur
-        </a>
-        <a href="{{ path('sdz_user_delete', {'id': user.id}) }}" class="btn btn-default">
-            <i class="glyphicon glyphicon-trash"></i>
-            Supprimer l'utilisateur
-        </a>
+
     </p>
 
 {% endblock fos_user_content%}

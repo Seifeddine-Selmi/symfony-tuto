@@ -32,6 +32,10 @@
                             <li><a href="{{ path('sdzblog_add') }}">Ajouter un article</a></li>
                         {% endif %}
 
+                        {% if is_granted('ROLE_SUPER_ADMIN') %}
+                            <li><a href="{{ path('sdz_user_home') }}">Liste des utilisateurs</a></li>
+                        {% endif %}
+
                     </ul>
                     {{ render(controller("SdzBlogBundle:Blog:menu", {'nombre': 3})) }}
                 </div>

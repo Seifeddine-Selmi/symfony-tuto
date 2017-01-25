@@ -12,6 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class UserType extends AbstractType
 {
@@ -39,6 +41,23 @@ class UserType extends AbstractType
                     'empty_data'  => null
                 ))
                ->add('save',      SubmitType::class);
+
+/*
+        $builder->addEventListener(
+            FormEvents::PRE_SET_DATA,
+            function(FormEvent $event) {
+
+                $user = $event->getData();
+
+                if (null === $user) {
+                    return;
+                }
+
+                if (!in_array('ROLE_SUPER_ADMIN', $user->getRoles()) ) {
+                    $event->getForm()->remove('roles');
+                }
+            }
+        );*/
     }
 
 

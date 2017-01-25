@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Sdz\UserBundle\Entity\User;
 use Sdz\UserBundle\Form\UserType;
 use Sdz\UserBundle\Form\UserEditType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class UserController extends Controller
 {
@@ -86,6 +87,9 @@ class UserController extends Controller
 
     }
 
+    /**
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
     public function editAction(Request $request, $id)
     {
 
@@ -129,6 +133,9 @@ class UserController extends Controller
 
     }
 
+    /**
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
     public function deleteAction(Request $request, $id)
     {
 

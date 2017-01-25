@@ -17,9 +17,7 @@
         <ul>
             {% for user in users %}
                 <li>
-                    <a href="{{ path('sdz_user_view', {'id': user.id}) }}">{{ user.username }}</a>
-                     {{ user.id }} -
-                    {{ user.username }}
+                    {% include "SdzUserBundle:User:user.html.twig" %}
                 </li>
             {% else %}
                 <li>Pas d'users</li>

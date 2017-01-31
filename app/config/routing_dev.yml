@@ -12,3 +12,9 @@ _errors:
 
 _main:
     resource: routing.yml
+
+# Test
+sdz_blog_translation:
+  path:     /{_locale}/traduction/{name}
+  defaults:
+    _controller: SdzBlogBundle:Blog:translation

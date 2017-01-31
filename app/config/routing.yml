@@ -1,6 +1,8 @@
 sdz_blog:
     resource: "@SdzBlogBundle/Resources/config/routing.yml"
-    prefix:   /blog
+    prefix:   /{_locale}/blog
+    requirements:
+        _locale: en|fr
 
 sdz_users:
     resource: "@SdzUserBundle/Resources/config/routing.yml"

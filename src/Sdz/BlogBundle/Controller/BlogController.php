@@ -310,8 +310,20 @@ class BlogController extends Controller
 
 
 
+    // Translation
+    public function translationAction($name)
+    {
+        // On récupère le service translator
+        $translator = $this->get('translator');
 
+         // Pour traduire dans la locale de l'utilisateur :
+        $texteTraduit = $translator->trans('Mon message à inscrire dans les logs');
 
+        return $this->render('SdzBlogBundle:Blog:translation.html.twig', array(
+            'name' => $name,
+            'text' => $texteTraduit
+        ));
+    }
     /********************************** Test ****************************************************/
 
     public function menuTestAction($nombre)

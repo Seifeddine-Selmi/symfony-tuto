@@ -15,7 +15,7 @@
 </h2>
 <i>Le {{ article.date|date('d/m/Y') }}, par {{ article.author }}.</i>
 <div class="well">
-    {{ article.content }}
+    {{ article.content|striptags }}
 </div>
 {# On affiche les catégories éventuelles #}
 {% if article.categories.count > 0 %}

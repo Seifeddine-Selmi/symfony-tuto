@@ -5,6 +5,8 @@ services:
 #        class: Sdz\BlogBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
 
+
+    # Antispam Service
     sdz_blog.antispam:
         class: Sdz\BlogBundle\Antispam\SdzAntispam
        # arguments: ["@mailer", "%locale%", 3]
@@ -21,13 +23,58 @@ services:
         tags:
              -  { name: twig.extension }
 
+    # Antiflood Service
     sdz_blog.validator.antiflood:
             class: Sdz\BlogBundle\Validator\AntifloodValidator
             arguments: ["@request_stack", "@doctrine.orm.entity_manager"]
             tags:
               - { name: validator.constraint_validator, alias: sdz_blog_antiflood }
 
+    # Ckeditor Service
     sdz_blog.form.ckeditor:
         class: Sdz\BlogBundle\Form\CkeditorType
         tags:
           - { name: form.type, alias: ckeditor }
+
+    # Event Manager Service
+    sdz_blog.beta.html_adder:
+        class: Sdz\BlogBundle\Beta\BetaHTMLAdder
+
+    sdz_blog.beta.listener:
+        class: Sdz\BlogBundle\Beta\BetaListener
+        arguments:
+          - "@sdz_blog.beta.html_adder"
+          - "2017-01-29"
+        tags:
+              - { name: kernel.event_listener, event: kernel.response, method: processBeta }
+             # - { name: kernel.event_listener, event: kernel.controller, method: ignoreBeta }
+
+
+    sdz_blog.bigbrother.message_notificator:
+        class: Sdz\BlogBundle\Bigbrother\MessageNotificator
+        arguments:
+          - "@mailer"
+
+    sdz_blog.bigbrother.message_listener:
+      class: Sdz\BlogBundle\Bigbrother\MessageListener
+      arguments:
+        - "@sdz_blog.bigbrother.message_notificator"
+        - ["selmi", "seif", "adam"]
+      tags:
+        - { name: kernel.event_listener, event: sdz_blog.post_message, method: processMessage }
+
+    sdz_blog.bigbrother.message_listener:
+        class: Sdz\BlogBundle\Bigbrother\MessageListener
+        arguments:
+          - "@sdz_blog.bigbrother.message_notificator"
+          - ["selmi", "seif", "adam"]
+        tags:
+          - { name: kernel.event_subscriber }
+
+    sdz_blog.beta.listener:
+        class: Sdz\BlogBundle\Beta\BetaListener
+        arguments:
+          - "@sdz_blog.beta.html_adder"
+          - "2017-06-01"
+        tags:
+          - { name: kernel.event_listener, event: kernel.response, method: processBeta, priority: 2 }

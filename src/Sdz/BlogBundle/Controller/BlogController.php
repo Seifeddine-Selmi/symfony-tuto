@@ -22,6 +22,14 @@ use Sdz\BlogBundle\Form\ArticleEditType;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
+use Sdz\BlogBundle\Beta\BetaListener;
+
+use Sdz\BlogBundle\Beta\BetaHTMLAdder;
+
+use Sdz\BlogBundle\Event\BlogEvents;
+use Sdz\BlogBundle\Event\MessagePostEvent;
+
+
 class BlogController extends Controller
 {
 
@@ -31,6 +39,21 @@ class BlogController extends Controller
         if( $page < 0 ) {
             throw $this->createNotFoundException('Page inexistante (page = '.$page.')');
         }
+        /*
+        $betaHTMLAdder = new BetaHTMLAdder;
+        // On instancie notre listener
+        $betaListener = new BetaListener($betaHTMLAdder, '2016-06-01');
+
+        // On récupère le gestionnaire d'évènements, qui heureusement est un service !
+        $dispatcher = $this->get('event_dispatcher');
+
+       // On dit au gestionnaire d'exécuter la méthode processBeta de notre listener
+       // lorsque l'évènement kernel.response est déclenché
+        $dispatcher->addListener(
+            'kernel.response',
+            array($betaListener, 'processBeta')
+        );
+        */
 
         $articles = $this->getDoctrine()
                          ->getManager()
@@ -121,6 +144,35 @@ class BlogController extends Controller
            $form->handleRequest($request); //S3
 
            if ($form->isValid()) {
+
+               // On récupère le service
+               $security = $this->get('security.token_storage');
+
+               // On récupère le token
+               $token = $security->getToken();
+
+               if($token) {
+                   // Si la requête courante n'est pas derrière un pare-feu, $token est null
+
+                   // Sinon, on récupère l'utilisateur
+                   $user = $token->getUser(); // or
+                   // $user = $this->getUser();
+                   // $username =  $user->getUsername();
+                   $article->setUser($user);
+                   $article->setAuthor($user->getUsername());
+
+               }
+               /*
+               // On crée l'évènement avec ses 2 arguments
+                 $event = new MessagePostEvent($article->getContent(), $article->getUser());
+
+               // On déclenche l'évènement
+                  $this->get('event_dispatcher')->dispatch(BlogEvents::POST_MESSAGE, $event);
+
+               // On récupère ce qui a été modifié par le ou les listeners, ici le message
+                 $article->setContent($event->getMessage());
+
+                */
                // c'est elle qui déplace l'image là où on veut les stocker
                // $article->getImage()->upload();
 

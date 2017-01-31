@@ -33,7 +33,8 @@ class ArticleType extends AbstractType
         $builder
             ->add('date',      DateType::class)
             ->add('title',     TextType::class)
-            ->add('author',    TextType::class)
+          //  ->add('author',    TextType::class)
+
             ->add('content', CkeditorType::class)
            // ->add('content',TextareaType::class, array('attr' => array('class' => 'ckeditor')))
            // ->add('published', CheckboxType::class, array('required' => false))
@@ -95,7 +96,11 @@ class ArticleType extends AbstractType
                     }
                 }
        );
+
+
     }
+
+
     
     /**
      * {@inheritdoc}

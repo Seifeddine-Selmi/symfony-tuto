@@ -50,10 +50,14 @@ class Article
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=255)
-     * @Assert\Length(min=2)
-     * @Assert\NotBlank()
      */
     private $author;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Sdz\UserBundle\Entity\User", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
 
     /**
      * @var string
@@ -479,4 +483,28 @@ class Article
     }
 
 
+
+    /**
+     * Set user
+     *
+     * @param \Sdz\UserBundle\Entity\User $user
+     *
+     * @return Article
+     */
+    public function setUser(\Sdz\UserBundle\Entity\User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Sdz\UserBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
 }

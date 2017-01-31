@@ -35,7 +35,7 @@
                 {{ form_widget(form.content) }}
             </div>
         </div>
-
+    {% if form.author is defined %}
         <div class="form-group">
             {{ form_label(form.author, "Auteur", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
             {{ form_errors(form.author) }}
@@ -43,6 +43,7 @@
                 {{ form_widget(form.author, {'attr': {'class': 'form-control'}}) }}
             </div>
         </div>
+    {% endif %}
         {# form_row(form.author) #}
 
         {% if form.published is defined %}
